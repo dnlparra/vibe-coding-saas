@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { VibeButton } from '@/components/ui/vibe-button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { animations } from '@/theme/animations';
-import { supabase } from '@/lib/supabase';
+import { signInWithEmail } from '@/lib/supabase';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor ingresa un email válido'),
@@ -41,30 +41,25 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
     setAuthError(null);
     
     try {
-      // En un entorno de desarrollo/demo, permite iniciar sesión sin Supabase real
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        // Simulación de autenticación para desarrollo
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        if (onSuccess) onSuccess(values);
-        return;
-      }
-      
-      // Autenticación real con Supabase
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
+      // Autenticación con Supabase
+      const { data, error } = await signInWithEmail(values.email, values.password);
       
       if (error) {
-        setAuthError(error.message);
-        if (onError) onError(new Error(error.message));
+        let errorMessage = error.message;
+        // Mensajes de error más amigables
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Credenciales inválidas. Por favor verifica tu email y contraseña.';
+        }
+        setAuthError(errorMessage);
+        if (onError) onError(error);
         return;
       }
 
+      console.log('Usuario autenticado:', data?.user);
       if (onSuccess) onSuccess(values);
     } catch (error) {
       console.error('Error de autenticación:', error);
-      setAuthError('Ocurrió un error al iniciar sesión');
+      setAuthError('Ocurrió un error al iniciar sesión. Por favor intenta nuevamente.');
       if (onError && error instanceof Error) onError(error);
     } finally {
       setIsLoading(false);
@@ -171,9 +166,9 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
           className="w-full py-2"
           variant="gradient"
           disabled={isLoading}
+          isLoading={isLoading}
         >
-          {isLoading ? <LoadingSpinner size="sm" color="white" className="mr-2" /> : null}
-          {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+          Iniciar sesión
         </VibeButton>
       </motion.form>
     </motion.div>

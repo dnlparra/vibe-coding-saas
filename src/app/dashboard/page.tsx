@@ -68,12 +68,6 @@ const SessionsIcon = () => (
 );
 
 export default function DashboardPage() {
-  // Datos ficticios del usuario
-  const user = {
-    name: 'Usuario Demo',
-    email: 'usuario@demo.com',
-  };
-
   // Datos ficticios para las estadísticas
   const stats = [
     {
@@ -107,6 +101,31 @@ export default function DashboardPage() {
     { id: 4, user: 'Laura Martínez', action: 'creó un nuevo proyecto', time: 'hace 1 día' },
   ];
 
+  // Función para obtener el nombre del usuario real o usar uno por defecto
+  const getUserData = () => {
+    // Usamos try/catch porque getCurrentUser() es asíncrono y estamos en un componente que no puede ser async
+    try {
+      // Intentamos obtener los datos del usuario de las props del layout
+      const storedUser = localStorage.getItem('supabase.auth.token');
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        const userEmail = userData?.user?.email || 'usuario@ejemplo.com';
+        const userName = userData?.user?.user_metadata?.name || 'Usuario';
+        return { name: userName, email: userEmail };
+      }
+    } catch (error) {
+      console.error('Error al obtener datos del usuario:', error);
+    }
+    
+    // Datos por defecto si no podemos obtener el usuario real
+    return {
+      name: 'Usuario Demostración',
+      email: 'demo@ejemplo.com',
+    };
+  };
+
+  const user = getUserData();
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar user={user} />
@@ -119,7 +138,7 @@ export default function DashboardPage() {
           className="flex justify-between items-center mb-8"
         >
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <VibeButton variant="default">
+          <VibeButton variant="outline">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

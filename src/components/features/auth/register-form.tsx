@@ -6,13 +6,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { VibeButton } from '@/components/ui/vibe-button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { animations } from '@/theme/animations';
-import { supabase } from '@/lib/supabase';
+import { signUpWithEmail } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Por favor ingresa un email válido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
+    .regex(/[A-Z]/, 'La contraseña debe contener al menos una letra mayúscula')
+    .regex(/[0-9]/, 'La contraseña debe contener al menos un número'),
   confirmPassword: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
@@ -29,6 +31,7 @@ interface RegisterFormProps {
 export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [registrationStep, setRegistrationStep] = useState<'form' | 'success'>('form');
 
   const {
     register,
@@ -49,40 +52,98 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
     setAuthError(null);
     
     try {
-      // En un entorno de desarrollo/demo, permite crear una cuenta sin Supabase real
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        // Simulación de registro para desarrollo
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        if (onSuccess) onSuccess(values);
-        return;
-      }
-      
-      // Registro real con Supabase
-      const { error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            name: values.name,
-          }
-        }
-      });
+      // Registro con Supabase
+      const userData = {
+        name: values.name,
+        full_name: values.name,
+      };
+
+      const { data, error } = await signUpWithEmail(
+        values.email, 
+        values.password, 
+        userData
+      );
       
       if (error) {
-        setAuthError(error.message);
-        if (onError) onError(new Error(error.message));
+        let errorMessage = error.message;
+        
+        // Mensajes de error más amigables
+        if (error.message.includes('already registered')) {
+          errorMessage = 'Este correo electrónico ya está registrado. Por favor intenta con otro o inicia sesión.';
+        }
+        
+        setAuthError(errorMessage);
+        if (onError) onError(error);
         return;
       }
 
+      console.log('Usuario registrado:', data?.user);
+      setRegistrationStep('success');
       if (onSuccess) onSuccess(values);
     } catch (error) {
       console.error('Error de registro:', error);
-      setAuthError('Ocurrió un error al crear la cuenta');
+      setAuthError('Ocurrió un error al crear la cuenta. Por favor intenta nuevamente.');
       if (onError && error instanceof Error) onError(error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Renderizar el formulario o el mensaje de éxito
+  if (registrationStep === 'success') {
+    return (
+      <motion.div
+        className="w-full max-w-md p-8 space-y-8 rounded-xl bg-card shadow-lg border border-border/50"
+        initial={animations.scale.initial}
+        animate={animations.scale.animate}
+        transition={animations.scale.transition}
+      >
+        <div className="space-y-4 text-center">
+          <motion.div 
+            className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </motion.div>
+          <motion.h1 
+            className="text-2xl font-bold tracking-tight"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            ¡Registro exitoso!
+          </motion.h1>
+          <motion.p 
+            className="text-sm text-muted-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            Hemos enviado un correo de confirmación a tu email. 
+            Por favor revisa tu bandeja de entrada para verificar tu cuenta.
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <VibeButton 
+            variant="primary" 
+            className="w-full" 
+            href="/login"
+          >
+            Ir a iniciar sesión
+          </VibeButton>
+        </motion.div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -246,9 +307,9 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
           className="w-full py-2"
           variant="gradient"
           disabled={isLoading}
+          isLoading={isLoading}
         >
-          {isLoading ? <LoadingSpinner size="sm" color="white" className="mr-2" /> : null}
-          {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
+          Crear cuenta
         </VibeButton>
       </motion.form>
     </motion.div>

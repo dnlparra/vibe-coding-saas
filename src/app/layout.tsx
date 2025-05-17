@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 // Cargar fuente Inter
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="es" className="scroll-smooth">
       <body className={inter.className}>
         {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

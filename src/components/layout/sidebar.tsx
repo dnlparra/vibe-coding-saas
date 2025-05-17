@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { SidebarNav } from './sidebar-nav';
 import { cn } from '@/lib/utils';
+import { signOut } from '@/lib/supabase';
+import { VibeButton } from '@/components/ui/vibe-button';
 
 // Placeholder para los iconos
 const HomeIcon = () => (
@@ -58,6 +61,41 @@ const SettingsIcon = () => (
   </svg>
 );
 
+const LogoutIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
+const ProfileIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
 const navItems = [
   {
     title: 'Dashboard',
@@ -74,6 +112,11 @@ const navItems = [
     href: '/dashboard/settings',
     icon: <SettingsIcon />,
   },
+  {
+    title: 'Perfil',
+    href: '/dashboard/profile',
+    icon: <ProfileIcon />,
+  },
 ];
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -85,6 +128,21 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Sidebar({ className, user, ...props }: SidebarProps) {
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -119,7 +177,7 @@ export function Sidebar({ className, user, ...props }: SidebarProps) {
               <path d="M10 12h4" />
             </svg>
           </div>
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             VibeApp
           </span>
         </motion.div>
@@ -130,32 +188,57 @@ export function Sidebar({ className, user, ...props }: SidebarProps) {
       </div>
 
       {user && (
-        <motion.div
-          className="mt-auto pt-4 border-t border-border flex items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-        >
-          <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-accent-20 flex items-center justify-center">
-            {user.avatar ? (
-              <Image
-                src={user.avatar}
-                alt={user.name}
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-primary font-semibold">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div className="ml-3">
-            <p className="text-sm font-medium text-foreground">{user.name}</p>
-            <p className="text-xs text-muted-foreground">{user.email}</p>
-          </div>
-        </motion.div>
+        <div className="mt-auto border-t border-border pt-4 space-y-4">
+          <motion.div
+            className="flex items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+          >
+            <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-accent-5 flex items-center justify-center">
+              {user.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={user.name}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-primary font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-foreground">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <Link 
+                href="/dashboard/profile" 
+                className="text-xs text-primary hover:underline"
+              >
+                Editar perfil
+              </Link>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <VibeButton
+              variant="subtle"
+              size="sm"
+              className="w-full justify-start"
+              onClick={handleLogout}
+              isLoading={isLoggingOut}
+            >
+              <LogoutIcon />
+              <span className="ml-2">Cerrar sesión</span>
+            </VibeButton>
+          </motion.div>
+        </div>
       )}
     </div>
   );

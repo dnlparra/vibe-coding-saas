@@ -1,64 +1,30 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { LoginForm } from '@/components/features/auth/login-form';
+import { animations } from '@/theme/animations';
+import { VibeCard } from '@/components/ui/vibe-card';
 
-// Componente mejorado de formulario de login con Tailwind
-const LoginForm = ({ onSuccess }: { onSuccess: () => void }) => {
+// Componente para usar searchParams de manera segura
+const LoginMessage = () => {
+  // useSearchParams solo se usa dentro de este componente
+  const { useSearchParams } = require('next/navigation');
+  const searchParams = useSearchParams();
+  const registeredSuccess = searchParams.get('registered') === 'true';
+
+  if (!registeredSuccess) return null;
+
   return (
-    <div className="w-full max-w-md p-8 space-y-6 rounded-xl bg-card shadow-lg border border-border/50">
-      <h2 className="text-2xl font-bold text-center">Iniciar sesión</h2>
-      <form onSubmit={(e) => { e.preventDefault(); onSuccess(); }} className="space-y-6">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="tu@email.com"
-              className={cn(
-                'w-full px-3 py-2 rounded-md border border-input text-foreground',
-                'bg-background focus:outline-none focus:ring-2 ring-primary-50',
-                'placeholder:text-muted-foreground'
-              )}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="********"
-              className={cn(
-                'w-full px-3 py-2 rounded-md border border-input text-foreground',
-                'bg-background focus:outline-none focus:ring-2 ring-primary-50',
-                'placeholder:text-muted-foreground'
-              )}
-            />
-          </div>
-        </div>
-        
-        <button
-          type="submit"
-          className={cn(
-            'w-full inline-flex items-center justify-center rounded-md font-medium',
-            'h-10 px-4 py-2 bg-gradient-to-r from-primary to-accent',
-            'text-primary-foreground transition-all hover:brightness-105',
-            'focus-visible:outline-none focus-visible:ring-2 ring-primary-50'
-          )}
-        >
-          Iniciar sesión
-        </button>
-      </form>
-    </div>
+    <motion.div
+      className="mb-4 w-full p-4 bg-green-100 border border-green-300 text-green-700 rounded-md text-sm"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      ¡Registro exitoso! Por favor, inicia sesión con tus credenciales.
+    </motion.div>
   );
 };
 
@@ -66,29 +32,33 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLoginSuccess = () => {
-    // En una aplicación real, aquí guardaríamos el token de sesión
-    // y haríamos verificaciones adicionales
-
-    // Redirigir al dashboard después de iniciar sesión
     router.push('/dashboard');
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-b from-background to-[#fdf2ff]">
+    <main className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-b from-background to-[var(--purple-1)]">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
         <motion.div
-          className="hidden md:flex flex-col space-y-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          className="hidden md:flex flex-col space-y-6"
+          initial={animations.fadeIn.initial}
+          animate={animations.fadeIn.animate}
+          transition={animations.fadeIn.transition}
         >
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="inline-flex mb-2 px-4 py-1.5 bg-primary-5 text-primary text-sm font-medium rounded-full self-start"
+          >
+            Plataforma SaaS moderna
+          </motion.div>
           <motion.h1 
-            className="text-3xl font-bold"
+            className="text-3xl font-bold md:text-4xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            Bienvenido a <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">VibeApp</span>
+            Bienvenido a <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">VibeApp</span>
           </motion.h1>
           <motion.p 
             className="text-muted-foreground text-lg"
@@ -98,33 +68,48 @@ export default function LoginPage() {
           >
             Accede a tu cuenta para descubrir todas las funcionalidades que tenemos para ti.
           </motion.p>
-          <motion.ul
-            className="space-y-2 mt-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
           >
-            {[
-              'Dashboard personalizado con estadísticas en tiempo real',
-              'Interfaz de usuario moderna y atractiva',
-              'Animaciones fluidas para una mejor experiencia',
-              'Análisis detallados de tu actividad',
-            ].map((item, index) => (
-              <motion.li
-                key={index}
-                className="flex items-center text-muted-foreground"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + (index * 0.1) }}
-              >
-                <span className="mr-2 text-accent">✓</span> {item}
-              </motion.li>
-            ))}
-          </motion.ul>
+            <VibeCard
+              variant="glass"
+              className="border-primary border-opacity-10"
+            >
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">¿Qué ofrecemos?</h3>
+                <ul className="space-y-3">
+                  {[
+                    'Dashboard personalizado con estadísticas en tiempo real',
+                    'Interfaz de usuario moderna y atractiva',
+                    'Animaciones fluidas para una mejor experiencia',
+                    'Análisis detallados de tu actividad',
+                  ].map((item, index) => (
+                    <motion.li
+                      key={index}
+                      className="flex items-center text-muted-foreground"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + (index * 0.1) }}
+                    >
+                      <span className="w-6 h-6 mr-2 flex items-center justify-center rounded-full bg-primary-5 text-primary">✓</span> 
+                      {item}
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </VibeCard>
+          </motion.div>
         </motion.div>
 
         <div className="flex flex-col items-center">
+          <Suspense fallback={null}>
+            <LoginMessage />
+          </Suspense>
+
           <LoginForm onSuccess={handleLoginSuccess} />
+          
           <motion.div
             className="mt-6 text-center"
             initial={{ opacity: 0 }}
