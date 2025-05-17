@@ -1,10 +1,3 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 // Prevenimos el cambio de layout en animaciones
 export function getPreferredReducedMotion() {
   if (typeof window === 'undefined') return false;
@@ -34,4 +27,9 @@ export function stringToColor(str: string): string {
     color += ('00' + value.toString(16)).substr(-2);
   }
   return color;
+}
+
+// Utilidad para concatenar clases condicionalmente
+export function cn(...classes: (string | undefined | null | false)[]) {
+  return classes.filter(Boolean).join(' ');
 } 

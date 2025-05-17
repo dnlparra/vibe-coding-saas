@@ -7,32 +7,32 @@ interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   color?: 'primary' | 'accent' | 'white';
 }
 
-const sizeClasses = {
-  sm: 'w-5 h-5',
-  md: 'w-8 h-8',
-  lg: 'w-12 h-12',
-};
-
-const colorClasses = {
-  primary: 'text-primary',
-  accent: 'text-accent',
-  white: 'text-white',
-};
-
 export function LoadingSpinner({
   size = 'md',
   color = 'primary',
-  className,
+  className = '',
   ...props
 }: LoadingSpinnerProps) {
+  const sizeClasses = {
+    sm: 'h-4 w-4 border-[1.5px]',
+    md: 'h-6 w-6 border-2',
+    lg: 'h-8 w-8 border-[3px]',
+  };
+  
+  const colorClasses = {
+    primary: 'border-primary',
+    accent: 'border-accent',
+    white: 'border-white',
+  };
+  
   return (
     <div
-      className={cn('flex items-center justify-center', className)}
+      className={cn("flex items-center justify-center", className)}
       {...props}
     >
       <motion.div
         className={cn(
-          'border-t-2 border-b-2 rounded-full',
+          "animate-spin rounded-full border-t-transparent border-b-transparent",
           sizeClasses[size],
           colorClasses[color]
         )}

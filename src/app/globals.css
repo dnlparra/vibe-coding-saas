@@ -2,110 +2,242 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
+:root {
+  --foreground-color: #000000;
+  --background-color: #ffffff;
+  --primary-color: #0070f3;
+  --secondary-color: #7928ca;
+  --accent-color: #f81ce5;
+  --success-color: #0070f3;
+  --error-color: #ff0000;
+  --border-color: #eaeaea;
+  --text-color: #000000;
+  --text-secondary-color: #666666;
+  --card-background: #ffffff;
+  --hover-bg: #f5f5f5;
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 326 100% 60%;
-    --accent-hover: 326 100% 50%;
-    --accent-foreground: 210 40% 98%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
- 
-    --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 326 100% 65%;
-    --accent-hover: 326 100% 70%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.5% 48%;
+    --foreground-color: #ffffff;
+    --background-color: #111111;
+    --border-color: #333333;
+    --text-color: #ffffff;
+    --text-secondary-color: #999999;
+    --card-background: #1a1a1a;
+    --hover-bg: #2a2a2a;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border box-border p-0 m-0;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans leading-relaxed;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  h1 {
+    @apply text-3xl font-bold md:text-4xl;
+  }
+  
+  h2 {
+    @apply text-2xl font-bold md:text-3xl;
+  }
+  
+  h3 {
+    @apply text-xl font-bold md:text-2xl;
+  }
+  
+  a {
+    @apply text-primary no-underline hover:underline;
+  }
 }
 
-/* Animaciones globales */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@layer components {
+  /* Utilidades para manejar opacidades */
+  .bg-primary-5 {
+    @apply bg-[#e6f1ff];
+  }
+  
+  .bg-primary-10 {
+    @apply bg-[#e6f1ff];
+  }
+  
+  .bg-primary-20 {
+    @apply bg-[#cce3ff];
+  }
+  
+  .bg-primary-50 {
+    @apply bg-[#80b8ff];
+  }
+  
+  .bg-primary-90 {
+    @apply bg-[#0064db];
+  }
+  
+  .bg-accent-5 {
+    @apply bg-[#fdf2ff];
+  }
+  
+  .bg-accent-10 {
+    @apply bg-[#fce7fa];
+  }
+  
+  .bg-accent-20 {
+    @apply bg-[#f9d0f5];
+  }
+  
+  .bg-accent-50 {
+    @apply bg-[#f081d8];
+  }
+  
+  .hover-bg-primary-90:hover {
+    @apply bg-[#0064db];
+  }
+  
+  .hover-bg-accent-50:hover {
+    @apply bg-[#f081d8];
+  }
+  
+  .ring-primary-50 {
+    @apply ring-[#80b8ff];
+  }
+  
+  .shadow-primary-20 {
+    @apply shadow-[#cce3ff];
+  }
+  
+  .ring-primary-50:focus {
+    @apply ring-[#80b8ff];
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+  
+  .container {
+    @apply w-full max-w-7xl mx-auto px-4;
+  }
+  
+  /* Spinner para carga */
+  .spinner-container {
+    @apply flex items-center justify-center;
+  }
+  
+  .spinner {
+    @apply animate-spin rounded-full border-t-2 border-b-2 h-6 w-6;
+  }
+  
+  .spinner-sm {
+    @apply h-4 w-4 border-[1.5px];
+  }
+  
+  .spinner-md {
+    @apply h-6 w-6 border-2;
+  }
+  
+  .spinner-lg {
+    @apply h-8 w-8 border-[3px];
+  }
+  
+  .spinner-primary {
+    @apply border-primary border-t-transparent border-b-transparent;
+  }
+  
+  .spinner-accent {
+    @apply border-accent border-t-transparent border-b-transparent;
+  }
+  
+  .spinner-white {
+    @apply border-white border-t-transparent border-b-transparent;
+  }
+  
+  /* Estilos de tarjetas */
+  .card-default {
+    @apply bg-card border border-border rounded-lg p-6 shadow-sm;
+  }
+  
+  .card-glass {
+    @apply bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg p-6;
+  }
+  
+  .card-dark {
+    @apply bg-foreground text-background rounded-lg p-6 shadow-md;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-primary to-secondary text-white rounded-lg p-6 shadow-md;
+  }
+  
+  /* Efectos de hover para tarjetas */
+  .card-hover-lift {
+    @apply transition-transform duration-300;
+  }
+  
+  .card-hover-lift:hover {
+    @apply -translate-y-1 shadow-md;
+  }
+  
+  .card-hover-glow {
+    @apply transition-shadow duration-300;
+  }
+  
+  .card-hover-glow:hover {
+    @apply shadow-lg shadow-[#cce3ff];
+  }
+  
+  /* Estilos para las secciones de la página */
+  .hero-section {
+    @apply relative bg-gradient-to-b from-background to-[#f0f7ff] py-16 md:py-24;
+  }
+  
+  .feature-section {
+    @apply py-12 bg-background;
+  }
+  
+  .cta-section {
+    @apply py-16 bg-blue-50;
+  }
+  
+  /* Estilos para el footer */
+  .footer {
+    @apply border-t border-border py-8 bg-background text-muted-foreground;
+  }
+  
+  /* Estilos para el login/register */
+  .login-info {
+    @apply hidden md:flex flex-col space-y-4;
+  }
+  
+  .login-list {
+    @apply space-y-2 mt-6;
+  }
+  
+  .login-list-item {
+    @apply flex items-center text-muted-foreground;
+  }
+  
+  .login-footer {
+    @apply mt-6 text-center;
+  }
+  
+  /* Estilos para inputs */
+  .input {
+    @apply w-full px-3 py-2 rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-2 ring-primary-50 transition-all;
+  }
+  
+  .input:focus {
+    @apply ring-2 ring-primary-50 border-transparent;
+  }
 }
 
-@keyframes glow {
-  0% { box-shadow: 0 0 5px rgba(236, 72, 153, 0.5); }
-  100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.8); }
-}
-
-/* Estilos para el Scrollbar - mejoran la vibe */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-secondary/20;
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-primary/30;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary/40;
+/* Media queries específicas */
+@media (min-width: 768px) {
+  .login-grid {
+    @apply grid grid-cols-2 gap-8 items-center;
+  }
 }

@@ -164,7 +164,7 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   {activities.map((activity) => (
                     <div key={activity.id} className="flex items-start space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <div className="w-8 h-8 rounded-full bg-[#e6f1ff] flex items-center justify-center text-primary">
                         {activity.user.charAt(0)}
                       </div>
                       <div>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                           {['+22%', '+15%', '+8%'][i]}
                         </span>
                       </div>
-                      <div className="h-2 bg-accent/10 rounded-full w-full overflow-hidden">
+                      <div className="h-2 bg-[#e6f1ff] rounded-full w-full overflow-hidden">
                         <motion.div
                           className="h-full bg-accent rounded-full"
                           initial={{ width: 0 }}
@@ -235,7 +235,7 @@ export default function DashboardPage() {
                     </span>
                     <span className="text-sm font-medium">{goal.percentage}%</span>
                   </div>
-                  <div className="h-2 bg-primary/10 rounded-full w-full overflow-hidden">
+                  <div className="h-2 bg-[#fce7fa] rounded-full w-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
                       initial={{ width: 0 }}

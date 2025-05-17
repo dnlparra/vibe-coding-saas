@@ -88,7 +88,7 @@ export function Sidebar({ className, user, ...props }: SidebarProps) {
   return (
     <div
       className={cn(
-        'flex flex-col border-r h-screen p-4 w-64 bg-background',
+        'flex flex-col h-screen w-64 p-4 bg-background border-r border-border',
         className
       )}
       {...props}
@@ -100,7 +100,7 @@ export function Sidebar({ className, user, ...props }: SidebarProps) {
           transition={{ duration: 0.3 }}
           className="flex items-center font-bold text-xl text-primary"
         >
-          <div className="mr-2 rounded-md bg-primary p-1 text-primary-foreground">
+          <div className="mr-2 rounded-md bg-primary p-1.5 text-primary-foreground">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -131,12 +131,12 @@ export function Sidebar({ className, user, ...props }: SidebarProps) {
 
       {user && (
         <motion.div
-          className="mt-auto pt-4 border-t flex items-center"
+          className="mt-auto pt-4 border-t border-border flex items-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.3 }}
         >
-          <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-accent/20">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-accent-20 flex items-center justify-center">
             {user.avatar ? (
               <Image
                 src={user.avatar}
@@ -152,7 +152,7 @@ export function Sidebar({ className, user, ...props }: SidebarProps) {
             )}
           </div>
           <div className="ml-3">
-            <p className="text-sm font-medium">{user.name}</p>
+            <p className="text-sm font-medium text-foreground">{user.name}</p>
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
         </motion.div>

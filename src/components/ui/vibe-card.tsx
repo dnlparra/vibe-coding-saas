@@ -1,47 +1,42 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const cardVariants = cva(
-  "rounded-lg border shadow-sm",
-  {
-    variants: {
-      variant: {
-        default: "bg-card text-card-foreground",
-        glass: "bg-white/10 backdrop-blur-md border-white/20",
-        dark: "bg-slate-900 text-white border-slate-800",
-        gradient: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-none",
-      },
-      hover: {
-        none: "",
-        lift: "transition-all duration-300 hover:-translate-y-1 hover:shadow-md",
-        glow: "transition-all duration-300 hover:shadow-[0_0_20px_rgba(192,132,252,0.5)]",
-      }
-    },
-    defaultVariants: {
-      variant: "default",
-      hover: "none",
-    },
-  }
-);
-
-export interface VibeCardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {
-  asChild?: boolean;
+export interface VibeCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onDrag'> {
+  variant?: 'default' | 'glass' | 'dark' | 'gradient';
+  hover?: 'none' | 'lift' | 'glow';
 }
 
+const hoverEffects = {
+  none: '',
+  lift: 'transition-transform hover:-translate-y-1 hover:shadow-md',
+  glow: 'transition-all hover:shadow-lg shadow-primary-20',
+};
+
+const variantStyles = {
+  default: 'bg-card border border-border',
+  glass: 'bg-background/80 backdrop-blur-sm border border-border/50',
+  dark: 'bg-foreground text-background',
+  gradient: 'bg-gradient-to-br from-primary to-accent text-primary-foreground',
+};
+
 const VibeCard = React.forwardRef<HTMLDivElement, VibeCardProps>(
-  ({ className, variant, hover, asChild = false, ...props }, ref) => {
+  ({ className = '', variant = 'default', hover = 'none', ...props }, ref) => {
+    const cardClasses = cn(
+      'rounded-lg p-4 shadow-sm',
+      variantStyles[variant],
+      hoverEffects[hover],
+      className
+    );
+    
     return (
       <motion.div
         ref={ref}
-        className={cn(cardVariants({ variant, hover, className }))}
+        className={cardClasses}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        {...props}
+        {...props as Omit<HTMLMotionProps<"div">, "ref">}
       />
     );
   }
@@ -49,4 +44,4 @@ const VibeCard = React.forwardRef<HTMLDivElement, VibeCardProps>(
 
 VibeCard.displayName = "VibeCard";
 
-export { VibeCard, cardVariants }; 
+export { VibeCard }; 

@@ -4,8 +4,63 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LoginForm } from '@/components/features/auth/login-form';
-import { animations } from '@/theme/animations';
+import { cn } from '@/lib/utils';
+
+// Componente mejorado de formulario de login con Tailwind
+const LoginForm = ({ onSuccess }: { onSuccess: () => void }) => {
+  return (
+    <div className="w-full max-w-md p-8 space-y-6 rounded-xl bg-card shadow-lg border border-border/50">
+      <h2 className="text-2xl font-bold text-center">Iniciar sesión</h2>
+      <form onSubmit={(e) => { e.preventDefault(); onSuccess(); }} className="space-y-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="tu@email.com"
+              className={cn(
+                'w-full px-3 py-2 rounded-md border border-input text-foreground',
+                'bg-background focus:outline-none focus:ring-2 ring-primary-50',
+                'placeholder:text-muted-foreground'
+              )}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              Contraseña
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="********"
+              className={cn(
+                'w-full px-3 py-2 rounded-md border border-input text-foreground',
+                'bg-background focus:outline-none focus:ring-2 ring-primary-50',
+                'placeholder:text-muted-foreground'
+              )}
+            />
+          </div>
+        </div>
+        
+        <button
+          type="submit"
+          className={cn(
+            'w-full inline-flex items-center justify-center rounded-md font-medium',
+            'h-10 px-4 py-2 bg-gradient-to-r from-primary to-accent',
+            'text-primary-foreground transition-all hover:brightness-105',
+            'focus-visible:outline-none focus-visible:ring-2 ring-primary-50'
+          )}
+        >
+          Iniciar sesión
+        </button>
+      </form>
+    </div>
+  );
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,13 +74,13 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-b from-background to-accent/5">
+    <main className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-b from-background to-[#fdf2ff]">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
         <motion.div
           className="hidden md:flex flex-col space-y-4"
-          initial={animations.fadeIn.initial}
-          animate={animations.fadeIn.animate}
-          transition={animations.fadeIn.transition}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
           <motion.h1 
             className="text-3xl font-bold"

@@ -1,0 +1,572 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Guía Definitiva para Vibe Coding con LLMs
+
+## 1. Stack Tecnológico Recomendado
+
+### Frontend
+- **Framework**: Next.js 14+ (App Router)
+- **Lenguaje**: TypeScript
+- **Estilos**: TailwindCSS + plugins (typography, forms)
+- **Animaciones**: Framer Motion
+- **Componentes**: shadcn/ui (basado en Radix UI)
+- **Estado**: Zustand o Jotai (estado global ligero)
+- **Fetching de datos**: TanStack Query (React Query)
+- **Validación**: Zod (integrado con formularios)
+
+### Backend
+- **Framework**: Next.js API Routes o tRPC
+- **ORM**: Prisma (para tipo-seguridad)
+- **Autenticación**: NextAuth.js / Clerk / Supabase Auth
+- **Base de datos**: Supabase (PostgreSQL)
+- **Almacenamiento**: Supabase Storage
+- **Serverless Functions**: Vercel o Netlify Functions
+
+### DevOps
+- **Hosting**: Vercel o Netlify
+- **CI/CD**: GitHub Actions (integrado con Vercel/Netlify)
+- **Control de código**: ESLint + Prettier
+- **Monitoreo**: Vercel Analytics o Plausible
+
+## 2. Principios de Vibe Coding
+
+### Coherencia Visual
+- **Sistema de diseño**: Implementar tokens de diseño consistentes
+- **Paletas de color**: Definir esquemas según el "vibe" objetivo
+- **Tipografía**: Seleccionar fuentes que refuercen la estética
+- **Espaciado**: Sistema de espaciado consistente (múltiplos de 4px)
+- **Animaciones**: Biblioteca de animaciones reutilizables con timings consistentes
+
+### Rendimiento
+- **Code splitting**: Cargar solo lo necesario
+- **Optimización de imágenes**: Next/Image con formatos modernos
+- **Lazy loading**: Componentes y rutas
+- **Optimización de animaciones**: Preferir transform/opacity sobre propiedades que causan reflow
+- **Monitoreo de Core Web Vitals**: Lighthouse/PageSpeed Insights
+
+### Arquitectura
+- **Atomic Design**: Átomos, moléculas, organismos, plantillas, páginas
+- **Feature-first**: Organización por características, no por tipos de archivo
+- **Separación de responsabilidades**: UI vs. lógica de negocio
+- **Componentes puros**: Minimizar efectos secundarios en componentes visuales
+- **Composición sobre herencia**: Componentes componibles
+
+## 3. Configuración Inicial
+
+### Proyecto Base
+```bash
+npx create-next-app@latest my-vibe-app --typescript --tailwind --eslint --app --src-dir
+```
+
+### Dependencias Esenciales
+```bash
+npm install framer-motion zustand @tanstack/react-query zod react-hook-form @hookform/resolvers
+npm install @prisma/client
+npm install -D prisma
+npm install @supabase/supabase-js
+```
+
+### shadcn/ui (componentes)
+```bash
+npx shadcn-ui@latest init
+```
+
+### Configuración de Prisma con Supabase
+```bash
+npx prisma init
+```
+
+## 4. Estructura de Carpetas
+```
+src/
+  app/                  # App Router de Next.js
+  components/           # Componentes reutilizables
+    ui/                 # Componentes de UI básicos
+    features/           # Componentes específicos de features
+    layout/             # Componentes de disposición
+  lib/                  # Utilidades y configuraciones
+    supabase.ts         # Cliente de Supabase
+    prisma.ts           # Cliente de Prisma
+    hooks/              # Custom hooks
+    utils/              # Funciones utilitarias
+  theme/                # Sistema de diseño
+    animations.ts       # Definición de animaciones
+    colors.ts           # Paleta de colores
+    typography.ts       # Configuración tipográfica
+    spacing.ts          # Sistema de espaciado
+  features/             # Organización por características
+    auth/               # Autenticación
+    dashboard/          # Panel de control
+    [feature-name]/     # Otras características
+  styles/               # Estilos globales
+  types/                # Definiciones de tipos
+```
+
+## 5. Sistema de Temas para Vibe Coding
+
+### Configuración de TailwindCSS
+```js
+// tailwind.config.js
+module.exports = {
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        // Colores base según el "vibe"
+        'vibe': {
+          // Paleta principal
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          // ... resto de la paleta
+          900: '#0c4a6e',
+        },
+        'accent': {
+          // Colores de acento
+          DEFAULT: '#ec4899',
+          hover: '#db2777',
+        },
+      },
+      animation: {
+        'float': 'float 3s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite alternate',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        glow: {
+          '0%': { boxShadow: '0 0 5px rgba(236, 72, 153, 0.5)' },
+          '100%': { boxShadow: '0 0 20px rgba(236, 72, 153, 0.8)' },
+        },
+      },
+      backgroundImage: {
+        'gradient-vibe': 'linear-gradient(to right bottom, var(--tw-gradient-stops))',
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+  ],
+};
+```
+
+### Sistema de Animaciones
+```typescript
+// src/theme/animations.ts
+import { AnimationProps } from 'framer-motion';
+
+export const transitions = {
+  // Transiciones base
+  default: { type: 'tween', ease: 'easeInOut', duration: 0.3 },
+  smooth: { type: 'tween', ease: [0.4, 0, 0.2, 1], duration: 0.5 },
+  bounce: { type: 'spring', stiffness: 300, damping: 15 },
+  gentle: { type: 'spring', stiffness: 100, damping: 20 },
+};
+
+export const animations = {
+  // Animaciones predefinidas
+  fadeIn: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    transition: transitions.default,
+  },
+  slideUp: {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: transitions.smooth,
+  },
+  scale: {
+    initial: { opacity: 0, scale: 0.9 },
+    animate: { opacity: 1, scale: 1 },
+    transition: transitions.bounce,
+  },
+  stagger: {
+    container: {
+      initial: { opacity: 1 },
+      animate: { opacity: 1, transition: { staggerChildren: 0.07 } },
+    },
+    item: {
+      initial: { opacity: 0, y: 10 },
+      animate: { opacity: 1, y: 0 },
+    },
+  },
+};
+
+// Utility para manejar preferencias de movimiento reducido
+export function getReducedMotionVariants(variants: AnimationProps) {
+  return {
+    ...variants,
+    transition: { duration: 0 },
+  };
+}
+```
+
+## 6. Componentes Base para Vibe Coding
+
+### Botón con Efecto Vibe
+```tsx
+// src/components/ui/vibe-button.tsx
+import React from 'react';
+import { motion } from 'framer-motion';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-input hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "underline-offset-4 hover:underline text-primary",
+        // Variantes para vibe coding
+        neon: "bg-black text-accent-foreground border border-accent hover:bg-accent/10 relative overflow-hidden",
+        gradient: "bg-gradient-to-r from-pink-500 to-violet-500 text-white hover:from-pink-600 hover:to-violet-600",
+      },
+      size: {
+        default: "h-10 py-2 px-4",
+        sm: "h-9 px-3 rounded-md",
+        lg: "h-11 px-8 rounded-md",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+// Efecto de resplandor para botones neon
+const glowEffect = {
+  initial: { boxShadow: "0 0 0px rgba(236, 72, 153, 0)" },
+  animate: { boxShadow: "0 0 20px rgba(236, 72, 153, 0.7)" },
+  transition: {
+    duration: 1.5,
+    repeat: Infinity,
+    repeatType: "reverse",
+  },
+};
+
+export interface VibeButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  glowIntensity?: "none" | "subtle" | "medium" | "intense";
+}
+
+const VibeButton = React.forwardRef<HTMLButtonElement, VibeButtonProps>(
+  ({ className, variant, size, glowIntensity = "none", asChild = false, ...props }, ref) => {
+    // Determinar si aplicar el efecto de resplandor
+    const shouldGlow = variant === "neon" && glowIntensity !== "none";
+    
+    // Configurar intensidad del resplandor
+    let glowConfig = {};
+    if (shouldGlow) {
+      switch (glowIntensity) {
+        case "subtle":
+          glowConfig = {
+            ...glowEffect,
+            animate: { boxShadow: "0 0 10px rgba(236, 72, 153, 0.4)" }
+          };
+          break;
+        case "medium":
+          glowConfig = glowEffect;
+          break;
+        case "intense":
+          glowConfig = {
+            ...glowEffect,
+            animate: { boxShadow: "0 0 30px rgba(236, 72, 153, 0.9)" }
+          };
+          break;
+      }
+    }
+
+    return (
+      <motion.button
+        className={buttonVariants({ variant, size, className })}
+        ref={ref}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
+        {...(shouldGlow ? glowConfig : {})}
+        {...props}
+      />
+    );
+  }
+);
+
+VibeButton.displayName = "VibeButton";
+
+export { VibeButton, buttonVariants };
+```
+
+### Card con Vibe
+```tsx
+// src/components/ui/vibe-card.tsx
+import React from 'react';
+import { motion } from 'framer-motion';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+const cardVariants = cva(
+  "rounded-lg border shadow-sm",
+  {
+    variants: {
+      variant: {
+        default: "bg-card text-card-foreground",
+        glass: "bg-white/10 backdrop-blur-md border-white/20",
+        dark: "bg-slate-900 text-white border-slate-800",
+        gradient: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-none",
+      },
+      hover: {
+        none: "",
+        lift: "transition-all duration-300 hover:-translate-y-1 hover:shadow-md",
+        glow: "transition-all duration-300 hover:shadow-[0_0_20px_rgba(192,132,252,0.5)]",
+      }
+    },
+    defaultVariants: {
+      variant: "default",
+      hover: "none",
+    },
+  }
+);
+
+export interface VibeCardProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardVariants> {
+  asChild?: boolean;
+}
+
+const VibeCard = React.forwardRef<HTMLDivElement, VibeCardProps>(
+  ({ className, variant, hover, asChild = false, ...props }, ref) => {
+    return (
+      <motion.div
+        ref={ref}
+        className={cardVariants({ variant, hover, className })}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        {...props}
+      />
+    );
+  }
+);
+
+VibeCard.displayName = "VibeCard";
+
+export { VibeCard, cardVariants };
+```
+
+## 7. Configuración de Supabase
+
+### Cliente de Supabase
+```typescript
+// src/lib/supabase.ts
+import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/types/supabase';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+```
+
+### Configuración de Prisma con Supabase
+```prisma
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  preferences UserPreference?
+}
+
+model UserPreference {
+  id          String  @id @default(uuid())
+  userId      String  @unique
+  theme       String  @default("system")
+  vibePreset  String  @default("default")
+  reducedMotion Boolean @default(false)
+  
+  // Relaciones
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+```
+
+## 8. Archivo .cursorrules para Optimizar Vibe Coding en Cursor
+
+```json
+{
+  "vibecodingRules": {
+    "framework": "next.js",
+    "stylePreference": "tailwindcss",
+    "animationLibrary": "framer-motion",
+    "componentLibrary": "shadcn/ui",
+    "stateManagement": "zustand",
+    "dataFetching": "tanstack-query",
+    "linting": "eslint",
+    "formatting": "prettier",
+    "typescript": {
+      "strict": true,
+      "preferConstOverLet": true,
+      "preferInterfaceOverType": false,
+      "explicitReturnTypes": true
+    },
+    "styling": {
+      "preferTailwindClasses": true,
+      "useClassVariantPattern": true,
+      "preferComposition": true
+    },
+    "react": {
+      "preferFunctionalComponents": true,
+      "useHooks": true,
+      "preferDestructuring": true
+    },
+    "code": {
+      "maximumLineLength": 100,
+      "preferEarlyReturn": true,
+      "preferNullCoalescing": true,
+      "preferOptionalChaining": true
+    },
+    "files": {
+      "componentExtension": ".tsx",
+      "utilityExtension": ".ts",
+      "styleExtension": ".css"
+    },
+    "animations": {
+      "preferPerformantProperties": true,
+      "preferReducedMotionSupport": true,
+      "preferComposition": true
+    },
+    "architecture": {
+      "preferFeatureFirst": true,
+      "preferAtomicDesign": true,
+      "preferCompositionOverInheritance": true
+    },
+    "vibePatterns": {
+      "preferMicroInteractions": true,
+      "preferConsistentAnimationTimings": true,
+      "preferAccessibleColors": true,
+      "preferThemingTokens": true
+    },
+    "security": {
+      "validateInputs": true,
+      "sanitizeOutputs": true,
+      "preventXSS": true,
+      "useCORS": true,
+      "validateEnvironmentVariables": true
+    }
+  },
+  "editorSettings": {
+    "formatOnSave": true,
+    "tabSize": 2,
+    "insertSpaces": true,
+    "bracketPairColorization": true,
+    "folding": true,
+    "semanticHighlighting": true
+  },
+  "codingAssistant": {
+    "preferredModel": "claude-3.7-sonnet",
+    "promptPrefixes": {
+      "components": "Design a React component using Tailwind CSS and Framer Motion that follows vibe coding principles with these characteristics:",
+      "animations": "Create smooth, performant animations using Framer Motion for this component with the following requirements:",
+      "refactoring": "Refactor this code to follow vibe coding best practices, using proper TypeScript typing, component composition, and optimizing for performance:",
+      "theming": "Create a theming system for this component that follows vibe coding principles, with proper color tokens, animation variables, and accessibility considerations:"
+    }
+  }
+}
+```
+
+## 9. Buenas Prácticas para Claude 3.7 Sonnet
+
+### Prompts Efectivos
+Para obtener el mejor código de vibe coding con Claude 3.7 Sonnet, utiliza prompts estructurados:
+
+1. **Especificar el stack tecnológico exacto**
+```
+Crea un componente [nombre] usando Next.js 14, TypeScript, TailwindCSS y Framer Motion que siga los principios de vibe coding.
+```
+
+2. **Describir la vibra con detalle**
+```
+El componente debe tener una estética cyberpunk con colores neón (rosa #ec4899 y azul #3b82f6), animaciones suaves al hacer hover, y un sutil efecto de resplandor en los bordes.
+```
+
+3. **Especificar interacciones**
+```
+Al hacer hover, el elemento debe elevarse ligeramente (5px) con una transición suave de 0.3s y aumentar su brillo en un 20%. Al hacer clic, debe tener un efecto de pulsación suave.
+```
+
+4. **Solicitar código modular y reutilizable**
+```
+El componente debe aceptar props para personalizar: intensidad del efecto (low, medium, high), color principal, y velocidad de la animación. Debe incluir soporte para prefers-reduced-motion.
+```
+
+5. **Pedir estructura completa del componente**
+```
+Incluye el componente completo con todos los imports necesarios, tipos TypeScript, y comentarios explicativos para las partes complejas.
+```
+
+### Iteración con Claude
+Para los mejores resultados, itera progresivamente:
+
+1. Solicita primero el esqueleto del componente
+2. Pide mejoras específicas una por una
+3. Solicita optimizaciones de rendimiento
+4. Pide variaciones o personalizaciones
+
+## 10. Flujo de Trabajo Recomendado
+
+1. **Diseño del sistema**
+   - Definir la "vibra" objetivo (mood board, paleta de colores)
+   - Crear tokens de diseño (colores, espaciado, animaciones)
+   - Desarrollar componentes base con variantes de "vibe"
+
+2. **Implementación**
+   - Configurar proyecto con el stack recomendado
+   - Implementar sistema de temas y preferencias
+   - Desarrollar componentes atómicos con foco en la "vibra"
+   - Construir características usando los componentes base
+
+3. **Optimización**
+   - Probar rendimiento con herramientas como Lighthouse
+   - Optimizar animaciones que causen problemas
+   - Implementar soporte para preferencias de usuario
+   - Asegurar accesibilidad con contrastes adecuados
+
+4. **Despliegue**
+   - Configurar CI/CD con GitHub Actions
+   - Desplegar en Vercel/Netlify
+   - Monitorear rendimiento y errores
+   - Iterar basado en feedback de usuarios
+
+## 11. Recursos Adicionales
+
+- [Documentación de Next.js](https://nextjs.org/docs)
+- [Documentación de TailwindCSS](https://tailwindcss.com/docs)
+- [Documentación de Framer Motion](https://www.framer.com/motion/)
+- [Documentación de Supabase](https://supabase.com/docs)
+- [Documentación de shadcn/ui](https://ui.shadcn.com)
+- [Documentación de Prisma](https://www.prisma.io/docs)
+- [Documentación de Zustand](https://github.com/pmndrs/zustand)
+- [Documentación de TanStack Query](https://tanstack.com/query/latest)
